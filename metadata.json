@@ -1,0 +1,23 @@
+{
+  "KPackageStructure": "KWin/Script",
+  "KPlugin": {
+    "Id": "fullscreen-margin",
+    "Name": "Fullscreen Margin",
+    "Name[de]": "Vollbildrand",
+    "Description": "Leaves a small margin around maximized windows.",
+    "Description[de]": "Lässt bei maximierten Fenstern einen kleinen Rand frei.",
+    "Icon": "view-fullscreen",
+    "Version": "1.0",
+    "License": "GPL-3.0-or-later",
+    "Authors": [
+      {
+        "Name": "Vanjana",
+        "Email": "95918352+Vanjana@users.noreply.github.com"
+      }
+    ],
+    "Website": "https://github.com/Vanjana/kwin-fullscreen-margins"
+  },
+  "X-KDE-ConfigModule": "kwin/effects/configs/kcm_kwin4_genericscripted",
+  "X-Plasma-API": "javascript",
+  "X-Plasma-MainScript": "code/main.js"
+}

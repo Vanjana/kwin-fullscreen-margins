@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE kcfg SYSTEM "http://www.kde.org/standards/kcfg/1.0/kcfg.dtd">
+<kcfg>
+  <kcfgfile />
+  <group name="">
+    <entry name="marginTop" type="Int">
+      <default>16</default>
+    </entry>
+    <entry name="marginBottom" type="Int">
+      <default>24</default>
+    </entry>
+    <entry name="marginLeft" type="Int">
+      <default>16</default>
+    </entry>
+    <entry name="marginRight" type="Int">
+      <default>16</default>
+    </entry>
+  </group>
+</kcfg>
