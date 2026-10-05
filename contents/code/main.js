@@ -26,8 +26,21 @@ function isExcludedWindow(window) {
   );
 }
 
+function marginGeometry(area) {
+  return {
+    x: area.x + MARGIN_LEFT,
+    y: area.y + MARGIN_TOP,
+    width: Math.max(1, area.width - MARGIN_LEFT - MARGIN_RIGHT),
+    height: Math.max(1, area.height - MARGIN_TOP - MARGIN_BOTTOM),
+  };
+}
+
 function applyMaximizedMargin(window) {
-  if (isExcludedWindow(window) || window._fullscreenMarginChanging) {
+  if (
+    isExcludedWindow(window) ||
+    window.fullScreen ||
+    window._fullscreenMarginChanging
+  ) {
     return;
   }
 
@@ -43,15 +56,8 @@ function applyMaximizedMargin(window) {
   window._fullscreenMarginChanging = true;
   debug("Maximiert erkannt: " + window.caption);
   window.setMaximize(false, false);
-  window.frameGeometry = {
-    x: maximizeArea.x + MARGIN_LEFT,
-    y: maximizeArea.y + MARGIN_TOP,
-    width: Math.max(1, maximizeArea.width - MARGIN_LEFT - MARGIN_RIGHT),
-    height: Math.max(1, maximizeArea.height - MARGIN_TOP - MARGIN_BOTTOM),
-  };
-
+  window.frameGeometry = marginGeometry(maximizeArea);
   window._fullscreenMarginChanging = false;
-  debug("64 px Rand gesetzt: " + window.caption);
 }
 
 function watchWindow(window) {
@@ -63,12 +69,13 @@ function watchWindow(window) {
     applyMaximizedMargin(window);
   });
 
+  // KWin can emit maximizedChanged before the final geometry is available.
+  window.frameGeometryChanged.connect(function () {
+    applyMaximizedMargin(window);
+  });
+
   window.fullScreenChanged.connect(function () {
     debug("Vollbild geändert: " + window.fullScreen + " / " + window.caption);
-    if (window.fullScreen) {
-      window.setMaximize(false, false);
-      window.frameGeometry = workspace.clientArea(KWin.FullScreenArea, window);
-    }
   });
 
   applyMaximizedMargin(window);
