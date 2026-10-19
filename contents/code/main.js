@@ -45,19 +45,18 @@ function applyMaximizedMargin(window) {
   }
 
   const maximizeArea = workspace.clientArea(KWin.MaximizeArea, window);
-  const isMaximizedGeometry =
-    window.width >= maximizeArea.width - 2 &&
-    window.height >= maximizeArea.height - 2;
-
-  if (!isMaximizedGeometry) {
-    return;
-  }
 
   window._fullscreenMarginChanging = true;
-  debug("Maximiert erkannt: " + window.caption);
-  window.setMaximize(false, false);
-  window.frameGeometry = marginGeometry(maximizeArea);
-  window._fullscreenMarginChanging = false;
+  try {
+    debug("Maximiert erkannt: " + window.caption);
+
+    // A maximized window owns its geometry. Release that state before
+    // assigning the smaller geometry, otherwise KWin can overwrite it.
+    window.setMaximize(false, false);
+    window.frameGeometry = marginGeometry(maximizeArea);
+  } finally {
+    window._fullscreenMarginChanging = false;
+  }
 }
 
 function watchWindow(window) {
@@ -65,20 +64,23 @@ function watchWindow(window) {
     return;
   }
 
-  window.maximizedChanged.connect(function () {
-    applyMaximizedMargin(window);
+  window.maximizedAboutToChange.connect(function (mode) {
+    // MaximizeFull is 3. Do not treat horizontal/vertical maximization as
+    // a full-screen-sized window.
+    window._fullscreenMarginPendingMaximize = mode === 3;
   });
 
-  // KWin can emit maximizedChanged before the final geometry is available.
-  window.frameGeometryChanged.connect(function () {
-    applyMaximizedMargin(window);
+  window.maximizedChanged.connect(function () {
+    if (window._fullscreenMarginPendingMaximize) {
+      window._fullscreenMarginPendingMaximize = false;
+      applyMaximizedMargin(window);
+    }
   });
 
   window.fullScreenChanged.connect(function () {
     debug("Vollbild geändert: " + window.fullScreen + " / " + window.caption);
   });
 
-  applyMaximizedMargin(window);
 }
 
 function toggleFullscreen() {
